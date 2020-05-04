@@ -30,10 +30,27 @@ def classify_data(alarm_data, classification_label_data, filepath,
     # Epochs pass the data n times through the system
     history = model.fit(x_train,
                         y_train,
-                        epochs=20,
+                        epochs=40,
                         batch_size=20,
-                        validation_data=(x_test, y_test),
-                        verbose=2)
+                        validation_data=(x_test, y_test) #,
+                        #verbose=2
+                       )
+    
+    # Epoch with lowest validation loss value is found from history of model
+
+    ##print(history.history['val_loss'])
+    ##print(len(history.history['val_loss']))
+
+    # best epoch is stored variable to retrain model
+    best_epoch = history.history['val_loss'].index(min(history.history['val_loss']))
+    print('Optimized validation loss value: epoch -' , best_epoch)
+    
+    # Model retrained with best epoch and entire training data
+    history_optimized_alldata = model.fit(x_data,
+                                          y_data,
+                                          epochs= best_epoch,
+                                          batch_size=20,
+                                          verbose=2)
 
     # saves the model in the filepath listed
     model.save('./models/' + filepath)
