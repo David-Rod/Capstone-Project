@@ -30,19 +30,39 @@ def classify_data(alarm_data, classification_label_data, filepath,
     # Epochs pass the data n times through the system
     history = model.fit(x_train,
                         y_train,
-                        epochs=20,
+                        epochs=40,
                         batch_size=20,
-                        validation_data=(x_test, y_test),
-                        verbose=2)
+                        validation_data=(x_test, y_test) #,
+                        #verbose=2
+                       )
+    
+    # Epoch with lowest validation loss value is found from history of model
+
+    ##print(history.history['val_loss'])
+    ##print(len(history.history['val_loss']))
+
+    # best epoch is stored variable to retrain model
+    best_epoch = history.history['val_loss'].index(min(history.history['val_loss']))
+    print('Optimized validation loss value: epoch -' , best_epoch)
+    
+    # recompile model to retrain optimized model
+    optimized_model = get_compiled_model(input_dimension, input_num, dropout, output)
+    
+    # Model retrained with best epoch and entire training data
+    history_optimized_alldata = optimized_model.fit(x_data,
+                                                    y_data,
+                                                    epochs= best_epoch,
+                                                    batch_size=20,
+                                                    verbose=2)
 
     # saves the model in the filepath listed
-    model.save('./models/' + filepath)
+     optimized_model.save('./models/' + filepath)
 
     # Eval accuracy of model on test data using the test labels in the file
-    test_results = model.evaluate(x_test, y_test)
-    train_results = model.evaluate(x_train, y_train)
+    test_results = optimized_model.evaluate(x_test, y_test)
+    train_results = optimized_model.evaluate(x_train, y_train)
 
-    print(history.model)
+    print(history_optimized_alldata.model)
     print("Test Evaluation: " + str(test_results))
     print("Train Evaluation: " + str(train_results))
 
