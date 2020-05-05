@@ -45,21 +45,24 @@ def classify_data(alarm_data, classification_label_data, filepath,
     best_epoch = history.history['val_loss'].index(min(history.history['val_loss']))
     print('Optimized validation loss value: epoch -' , best_epoch)
     
+    # recompile model to retrain optimized model
+    optimized_model = get_compiled_model(input_dimension, input_num, dropout, output)
+    
     # Model retrained with best epoch and entire training data
-    history_optimized_alldata = model.fit(x_data,
-                                          y_data,
-                                          epochs= best_epoch,
-                                          batch_size=20,
-                                          verbose=2)
+    history_optimized_alldata = optimized_model.fit(x_data,
+                                                    y_data,
+                                                    epochs= best_epoch,
+                                                    batch_size=20,
+                                                    verbose=2)
 
     # saves the model in the filepath listed
-    model.save('./models/' + filepath)
+     optimized_model.save('./models/' + filepath)
 
     # Eval accuracy of model on test data using the test labels in the file
-    test_results = model.evaluate(x_test, y_test)
-    train_results = model.evaluate(x_train, y_train)
+    test_results = optimized_model.evaluate(x_test, y_test)
+    train_results = optimized_model.evaluate(x_train, y_train)
 
-    print(history.model)
+    print(history_optimized_alldata.model)
     print("Test Evaluation: " + str(test_results))
     print("Train Evaluation: " + str(train_results))
 
